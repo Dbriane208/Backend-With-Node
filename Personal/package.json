@@ -1,0 +1,16 @@
+{
+  "name": "xpress-node",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js",
+    "start-server": "node app.js"
+  },
+  "author": "Daniel Brian",
+  "license": "ISC",
+  "description": "My first node app",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
