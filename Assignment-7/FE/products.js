@@ -18,6 +18,80 @@ const fetchEventData = async () => {
 // Call the function to fetch and display events
 fetchEventData();
 
+document.addEventListener('DOMContentLoaded', function() {
+  const addEventModal = document.getElementById('editModal');
+  const addItemBtn = document.getElementById('addItemBtn');
+  const closeSpan = document.querySelector('#editModal .close');
+  const editProductForm = document.getElementById('editProductForm');
+
+  // Open modal
+  addItemBtn.addEventListener('click', function() {
+    addEventModal.style.display = 'block';
+    // Clear the form when opening for a new event
+    editProductForm.reset();
+    // Change the form title to indicate we're adding a new event
+    document.querySelector('#editModal h2').textContent = 'Add New Event';
+  });
+
+  // Close modal
+  closeSpan.addEventListener('click', function() {
+    addEventModal.style.display = 'none';
+  });
+
+  // Close modal if clicked outside
+  window.addEventListener('click', function(event) {
+    if (event.target == addEventModal) {
+      addEventModal.style.display = 'none';
+    }
+  });
+
+  // Form submission
+  editProductForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    console.log('Form submitted'); // Debug log
+
+    const newEvent = {
+      imageUrl: document.getElementById('editImageUrl').value,
+      title: document.getElementById('editTitle').value,
+      price: parseFloat(document.getElementById('editPrice').value),
+      date: document.getElementById('editDate').value,
+      location: document.getElementById('editLocation').value,
+      company: document.getElementById('editCompany').value
+    };
+
+    console.log('New event data:', newEvent); // Debug log
+
+    try {
+      await addNewEvent(newEvent);
+      addEventModal.style.display = 'none';
+      this.reset(); // Reset the form after submission
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  });
+});
+
+const addNewEvent = async (newEvent) => {
+  try {
+    const response = await fetch(apiBaseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEvent)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create event');
+    }
+
+    const createdEvent = await response.json();
+    console.log('Created event:', createdEvent); // Debug log
+    await fetchEventData(); // Refresh the events list
+  } catch (error) {
+    console.error('Error in addNewEvent:', error);
+    throw error; // Re-throw to be caught in the submit event listener
+  }
+};
 
 function displayEvents(events) {
   const container = document.getElementById("container");
@@ -81,8 +155,20 @@ function displayEvents(events) {
     editButton.addEventListener('click', () => {
       editProduct(event); // Call the editProduct function with the product index
     });
+
+    deleteButton.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to delete this event?')) {
+        try {
+          await deleteEvent(event.id);
+          // The event list will be refreshed by fetchEventData() in deleteEvent function
+        } catch (error) {
+          console.error('Error deleting event:', error);
+          showNotification('Failed to delete event', true);
+        }
+      }
+    });
   });
-}
+};
 
 
 // Filtering function
@@ -293,7 +379,6 @@ const editProduct = async function(event) {
       });
 
       if (response.ok) {
-        showNotification('Event updated successfully');
         fetchEventData(); // Refresh the events list
         editModal.style.display = 'none';
       } else {
@@ -317,6 +402,25 @@ const editProduct = async function(event) {
       editModal.style.display = 'none';
     }
   };
+};
+
+const deleteEvent = async (id) => {
+  try {
+    const response = await fetch(`${apiBaseUrl}/${id}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      showNotification('Event deleted successfully');
+      fetchEventData(); // Refresh the events list
+    } else {
+      const error = await response.json();
+      showNotification(error.message || 'Failed to delete event', true);
+    }
+  } catch (error) {
+    showNotification('Failed to delete event', true);
+    console.error(error);
+  }
 };
 
 // Initial rendering of total price container
