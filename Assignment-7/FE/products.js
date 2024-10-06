@@ -1,10 +1,11 @@
 let events = [];
 let cartProducts = [];
+const apiBaseUrl = 'http://127.0.0.1:8004/api/product';
 
 // Fetch event data using async/await
 const fetchEventData = async () => {
   try {
-    const res = await fetch("http://127.0.0.1:8004/api/product"); // Await fetch response
+    const res = await fetch(apiBaseUrl); // Await fetch response
     const data = await res.json(); // Await for the response to be converted to JSON
     console.log(data);
     events = data; // Store fetched data in events
@@ -51,16 +52,38 @@ function displayEvents(events) {
     price.textContent = `Ksh ${event.price}`;
     info.appendChild(price);
 
-    const button = document.createElement("button");
-    button.textContent = 'Add to Cart';
-    button.className = 'buttons';
-    info.appendChild(button);
+    // Create a container for buttons
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = 'button-container';
+    info.appendChild(buttonContainer);
 
-    button.addEventListener('click', () => {
+    const editButton = document.createElement("button");
+    editButton.textContent = 'Edit';
+    editButton.className = 'buttons';
+    editButton.style.backgroundColor = "#28a745"
+    buttonContainer.appendChild(editButton);
+
+    const addButton = document.createElement("button");
+    addButton.textContent = 'Add to Cart';
+    addButton.className = 'buttons';
+    buttonContainer.appendChild(addButton);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = 'Delete';
+    deleteButton.style.backgroundColor = "#dc3545"
+    deleteButton.className = 'buttons';
+    buttonContainer.appendChild(deleteButton);
+
+    addButton.addEventListener('click', () => {
       addProductToCart(event); // Call the function to add the product to the cart
+    });
+
+    editButton.addEventListener('click', () => {
+      editProduct(event); // Call the editProduct function with the product index
     });
   });
 }
+
 
 // Filtering function
 document.getElementById("priceFilter").addEventListener("change", filterEvents);
@@ -98,12 +121,6 @@ function sortEvents(criteria, order) {
 
   displayEvents(sortedEvents);
 }
-
-// Event listeners for sorting buttons
-// document.getElementById('sort-price-asc').addEventListener('click', () => sortEvents('price', 'asc'));
-// document.getElementById('sort-price-desc').addEventListener('click', () => sortEvents('price', 'desc'));
-// document.getElementById('sort-date-asc').addEventListener('click', () => sortEvents('date', 'asc'));
-// document.getElementById('sort-date-desc').addEventListener('click', () => sortEvents('date', 'desc'));
 
 const addProductToCart = function (product) {
   const cartDiv = document.getElementById('cartDiv');
@@ -231,6 +248,75 @@ const updateTotalPrice = function () {
   });
 
   totalPriceDiv.textContent = `Total Price: Ksh ${totalPrice}`;
+};
+
+const editProduct = async function(event) {
+  // Get the modal and form elements
+  const editModal = document.getElementById('editModal');
+  const editTitle = document.getElementById('editTitle');
+  const editDate = document.getElementById('editDate');
+  const editCompany = document.getElementById('editCompany');
+  const editPrice = document.getElementById('editPrice');
+  const editLocation = document.getElementById('editLocation');
+  const editImageUrl = document.getElementById('editImageUrl');
+  const editProductForm = document.getElementById('editProductForm');
+
+  // Show the modal
+  editModal.style.display = 'block';
+
+  // Pre-fill the form with the current product data
+  editTitle.value = event.title || '';
+  editDate.value = event.date || '';
+  editCompany.value = event.company || '';
+  editPrice.value = event.price || '';
+  editLocation.value = event.location || '';
+  editImageUrl.value = event.imageUrl || '';
+
+  // Handle form submission
+  editProductForm.onsubmit = async function(e) {
+    e.preventDefault();
+
+    const updatedEvent = {
+      title: editTitle.value,
+      date: editDate.value,
+      company: editCompany.value,
+      price: Number(editPrice.value),
+      location: editLocation.value,
+      imageUrl: editImageUrl.value
+    };
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/${event.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedEvent)
+      });
+
+      if (response.ok) {
+        showNotification('Event updated successfully');
+        fetchEventData(); // Refresh the events list
+        editModal.style.display = 'none';
+      } else {
+        const error = await response.json();
+        showNotification(error.message || 'Failed to update event', true);
+      }
+    } catch (error) {
+      showNotification('Failed to update event', true);
+      console.error(error);
+    }
+  };
+
+  // Close modal functionality
+  const closeModal = document.getElementById('closeModal');
+  closeModal.onclick = function() {
+    editModal.style.display = 'none';
+  };
+
+  window.onclick = function(event) {
+    if (event.target === editModal) {
+      editModal.style.display = 'none';
+    }
+  };
 };
 
 // Initial rendering of total price container
