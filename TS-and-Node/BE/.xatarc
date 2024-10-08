@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Daniel-Brian-s-workspace-v0vh3n.us-east-1.xata.sh/db/ProductsDB",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}
