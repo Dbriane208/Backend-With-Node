@@ -50,11 +50,11 @@ app.put("/api/v1/products/:id", async (req: Request, res: Response): Promise<voi
     }
 });
 
-// Delete an event by ID
+// Delete a product by ID
 app.delete("/api/v1/products/:id", async (req: Request, res: Response): Promise<void> => {
     const eventID = req.params.id;
     try {
-        const result = await xata.db.Products.delete(eventID); 
+        await xata.db.Products.delete(eventID); 
         res.status(200).json({ message: "Event deleted successfully" });
     } catch (error: any) {
         res.status(500).json({ message: "An error occurred", error });
