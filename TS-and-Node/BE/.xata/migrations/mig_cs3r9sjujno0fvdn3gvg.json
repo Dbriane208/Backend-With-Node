@@ -1,0 +1,22 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cs3r9sjujno0fvdn3gvg",
+    "operations": [
+      {
+        "alter_column": {
+          "up": "(SELECT CASE WHEN \"price\" IS NULL THEN 0 ELSE \"price\" END)",
+          "down": "(SELECT CASE WHEN \"price\" IS NULL THEN 0 ELSE \"price\" END)",
+          "table": "Products",
+          "column": "price",
+          "nullable": false
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cs3r9sjujno0fvdn3gvg",
+  "parent": "mig_cs3r9qt4rshpd1p6dk60",
+  "schema": "public",
+  "startedAt": "2024-10-10T11:05:23.829895Z"
+}

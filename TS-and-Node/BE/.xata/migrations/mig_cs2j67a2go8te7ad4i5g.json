@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cs2j67a2go8te7ad4i5g",
+    "operations": [
+      {
+        "drop_table": {
+          "name": "Products"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cs2j67a2go8te7ad4i5g",
+  "parent": "mig_cs2ijrjujno0fvdn31b0",
+  "schema": "public",
+  "startedAt": "2024-10-08T13:26:54.192676Z"
+}

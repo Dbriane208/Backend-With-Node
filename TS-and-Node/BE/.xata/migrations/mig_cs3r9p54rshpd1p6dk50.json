@@ -1,0 +1,22 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cs3r9p54rshpd1p6dk50",
+    "operations": [
+      {
+        "alter_column": {
+          "up": "(SELECT CASE WHEN \"imageUrl\" IS NULL THEN '' ELSE \"imageUrl\" END)",
+          "down": "(SELECT CASE WHEN \"imageUrl\" IS NULL THEN '' ELSE \"imageUrl\" END)",
+          "table": "Products",
+          "column": "imageUrl",
+          "nullable": false
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cs3r9p54rshpd1p6dk50",
+  "parent": "mig_cs3om7l4rshpd1p6djo0",
+  "schema": "public",
+  "startedAt": "2024-10-10T11:05:08.75361Z"
+}

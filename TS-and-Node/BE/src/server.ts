@@ -1,64 +1,59 @@
-import express, { Request, Response } from 'express';
-import { getXataClient } from './xata'; // Adjust the import path based on your structure
+import express, { Express, Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import AppError from "./utils/AppError";
+import dotenv from "dotenv";
+import cors from "cors";
+import morgan from "morgan";
 
-const app = express();
-const xata = getXataClient();
+dotenv.config();
+
+import ProductsRoutes from "./routes/ProductsRoutes"
+
+const app: Express = express();
 app.use(express.json());
 
-// Get all events
-app.get("/api/v1/products", async (req: Request, res: Response): Promise<void> => {
-    try {
-        const records = await xata.db.Products.getAll()
-        res.status(200).json(records);
-    } catch (error: any) {
-        res.status(500).json({ message: "An error occurred", error });
-    }
+// Middleware
+// for parsing application/json
+app.use(express.json());
+
+// for parsing application/x-www-form-urlencoded
+app.use(express.urlencoded({extended : true}))
+
+app.use(cors());
+
+app.use(morgan('dev'));
+
+// Routes
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "Welcome to the Product API"
+    });
+})
+
+// passing the all routes to endpont
+app.use("/api/v1/products", ProductsRoutes);
+
+
+// Handle undefined routes
+app.all("*", (req: Request, res: Response, next: NextFunction) => {
+    next(new AppError(`Cannot find ${req.method} ${req.url} on this server`, 404));
 });
 
-// Get an Product by ID
-app.get("/api/v1/products/:id", async (req: Request, res: Response): Promise<void> => {
-    const productId: string = req.params.id;
-    try {
-        const record = await xata.db.Products.read(productId);
-        if (!record) {
-            res.status(404).json({ message: "Product not found" });
-            return;
-        }
-        res.status(200).json(record);
-    } catch (error: any) {
-        res.status(500).json({ message: "An error occurred", error });
-    }
-});
+// Define custom error interface
+interface AppErrorInstance extends ErrorRequestHandler {
+    message: string;
+    statusCode: number;
+    status?: string;
+}
 
-// Create a new Product
-app.post("/api/v1/products", async (req: Request, res: Response): Promise<void> => {
-    try {
-        await xata.db.Products.create(req.body)
-        res.status(201).json({ message: "Product created successfully" });
-    } catch (error: any) {
-        res.status(500).json({ message: "An error occurred", error });
-    }
-});
+// Global error handler
+app.use((err: AppErrorInstance, req: Request, res: Response, next: NextFunction) => {
+    const statusCode = err.statusCode || 500;
+    const status = err.status || 'error';
 
-// Update an product by ID
-app.put("/api/v1/products/:id", async (req: Request, res: Response): Promise<void> => {
-    try {
-        await xata.db.Products.update(req.body); 
-        res.status(200).json({ message: "Event updated successfully" });
-    } catch (error: any) {
-        res.status(500).json({ message: "An error occurred", error });
-    }
-});
-
-// Delete a product by ID
-app.delete("/api/v1/products/:id", async (req: Request, res: Response): Promise<void> => {
-    const eventID = req.params.id;
-    try {
-        await xata.db.Products.delete(eventID); 
-        res.status(200).json({ message: "Event deleted successfully" });
-    } catch (error: any) {
-        res.status(500).json({ message: "An error occurred", error });
-    }
+    res.status(statusCode).json({
+        status,
+        message: err.message || "Internal Server Error",
+    });
 });
 
 // Start the server

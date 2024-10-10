@@ -1,0 +1,97 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cs2j6954rshpd1p6d4g0",
+    "operations": [
+      {
+        "create_table": {
+          "name": "Products",
+          "columns": [
+            {
+              "name": "imageUrl",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "title",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "price",
+              "type": "int",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "date",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "location",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "company",
+              "type": "text",
+              "comment": "{}",
+              "nullable": true
+            },
+            {
+              "name": "xata_updatedat",
+              "type": "timestamptz",
+              "default": "now()",
+              "nullable": false
+            },
+            {
+              "name": "xata_id",
+              "type": "text",
+              "check": {
+                "name": "Products_xata_id_length_xata_id",
+                "constraint": "length(\"xata_id\") < 256"
+              },
+              "unique": true,
+              "default": "'rec_' || xata_private.xid()",
+              "nullable": false
+            },
+            {
+              "name": "xata_version",
+              "type": "integer",
+              "default": "0",
+              "nullable": false
+            },
+            {
+              "name": "xata_createdat",
+              "type": "timestamptz",
+              "default": "now()",
+              "nullable": false
+            }
+          ]
+        }
+      },
+      {
+        "sql": {
+          "up": "ALTER TABLE \"Products\" REPLICA IDENTITY FULL",
+          "onComplete": true
+        }
+      },
+      {
+        "sql": {
+          "up": "CREATE TRIGGER xata_maintain_metadata_trigger_pgroll\n  BEFORE INSERT OR UPDATE\n  ON \"Products\"\n  FOR EACH ROW\n  EXECUTE FUNCTION xata_private.maintain_metadata_trigger_pgroll()",
+          "onComplete": true
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cs2j6954rshpd1p6d4g0",
+  "parent": "mig_cs2j67a2go8te7ad4i5g",
+  "schema": "public",
+  "startedAt": "2024-10-08T13:27:01.224323Z"
+}

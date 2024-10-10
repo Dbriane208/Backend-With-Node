@@ -1,0 +1,22 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cs3r9ubujno0fvdn3h0g",
+    "operations": [
+      {
+        "alter_column": {
+          "up": "(SELECT CASE WHEN \"title\" IS NULL THEN '' ELSE \"title\" END)",
+          "down": "(SELECT CASE WHEN \"title\" IS NULL THEN '' ELSE \"title\" END)",
+          "table": "Products",
+          "column": "title",
+          "nullable": false
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cs3r9ubujno0fvdn3h0g",
+  "parent": "mig_cs3r9sjujno0fvdn3gvg",
+  "schema": "public",
+  "startedAt": "2024-10-10T11:05:30.90506Z"
+}
